@@ -61,7 +61,7 @@ colors = [hex_to_rgb(c) for c in colors] # Passar as cores para hex
 
 # Para cada estado, pintar ele baseado no valor das casas (normalizado)
 for i, ind in enumerate(cali.index):
-  proportion = (cali.loc[ind, geo_cat] / cali[geo_cat].max())
+  proportion = (cali.loc[ind, geo_cat] - cali[geo_cat].min()/ cali[geo_cat].max() - cali[geo_cat].min())
   index = int(round(n_colors * proportion, 0))
 
   if index >= len(colors):
