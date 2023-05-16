@@ -10,8 +10,6 @@ import utils
 cali = gpd.read_file('data/cali.shp') 
 df = pd.read_csv("data/df.csv")
 
-
-
 # =========================== Estrutura do dashboard ============================
 # Caixa de seleção dos gráficos
 st.sidebar.markdown('## Configurações')
@@ -22,7 +20,7 @@ categoria = st.sidebar.selectbox('Selecione a região para visualizar o gráfico
 
 # Montagem das abas (baseado no box selection)
 if categoria == 'Visualização do Banco de Dados':
-    st.title("Valor Médio das Casas na Califónia\n")
+    st.title("Visualização do valor médio das casas")
 
     st.sidebar.markdown('## Defina o Preço da Casa')
     valor_min, valor_max = st.sidebar.slider("Escolha o intervalo de valores", 0, 500003, (0, 500003), step=5)
@@ -51,7 +49,8 @@ elif categoria == "Análise por Distrito":
 
     criterio_escolhido = dict_opcoes[geo_cat]
 
-    st.pydeck_chart(utils.distritos(cali, radio_b, criterio_escolhido))
+    st.pyplot(utils.plot_estatico(cali, criterio_escolhido))
+    #st.pydeck_chart(utils.distritos(cali, radio_b, criterio_escolhido))
 else:
     pass
 # ===========================================================================

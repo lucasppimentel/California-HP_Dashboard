@@ -1,7 +1,26 @@
 import pydeck as pdk
 import leafmap.colormaps as cm
 from leafmap.common import hex_to_rgb
+import matplotlib.pyplot as plt
 
+def plot_estatico(data, criterio):
+    fig, ax = plt.subplots(1, figsize=(5, 8))
+
+    label_mask = ["Valor médio das casas", "Idade média das casas"]
+    dict_label = dict(zip(["value", "age"], label_mask))
+    label = dict_label[criterio] if criterio in ["value", "age"] else "X"
+
+    data.plot(column=criterio,
+            legend=True,
+            legend_kwds={
+                "label": label,
+                "orientation": "vertical",
+                "shrink": 0.4,
+                },
+            ax = ax);
+    ax.axis("off");
+
+    return fig
 
 def distritos(data, extrude, column):
     # Escolher uma palheta de cores e quantidade de cores diferentes a serem usadas
