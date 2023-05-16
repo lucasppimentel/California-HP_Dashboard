@@ -20,7 +20,7 @@ categoria = st.sidebar.selectbox('Selecione a região para visualizar o gráfico
 
 # Montagem das abas (baseado no box selection)
 if categoria == 'Visualização do Banco de Dados':
-    st.title("Visualização do valor médio das casas")
+    st.title("Visualização do valor  das casas")
 
     st.sidebar.markdown('## Defina o Preço da Casa')
     valor_min, valor_max = st.sidebar.slider("Escolha o intervalo de valores", 0, 500003, (0, 500003), step=5)
