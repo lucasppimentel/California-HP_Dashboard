@@ -2,9 +2,7 @@ import streamlit as st
 #import plotly.express as px
 import pandas as pd
 import geopandas as gpd
-import pydeck as pdk
-import leafmap.colormaps as cm
-from leafmap.common import hex_to_rgb
+import utils
 
 
 # Puxar os dados prontos
@@ -15,34 +13,47 @@ df = pd.read_csv("data/df.csv")
 
 
 # =========================== Estrutura do dashboard ============================
-st.title("Análise do Preço por Região\n")
-st.write("Vamos ver como o preço de casas na Califórnia varia por região.")
+# Caixa de seleção dos gráficos
+st.sidebar.markdown('## Configurações')
+categorias = ["Visualização do Banco de Dados", "Análise por Distrito", "g3", "g4"]
+categoria = st.sidebar.selectbox('Selecione a região para visualizar o gráfico',
+                                    options = categorias)
 
-# Filtros para a tabela
-checkbox_mostrar_tabela = st.sidebar.checkbox('Mostrar tabela', value = True)
 
-if checkbox_mostrar_tabela:
+# Montagem das abas (baseado no box selection)
+if categoria == 'Visualização do Banco de Dados':
+    st.title("Valor Médio das Casas na Califónia\n")
+
+    st.sidebar.markdown('## Defina o Preço da Casa')
+    valor_min, valor_max = st.sidebar.slider("Escolha o intervalo de valores", 0, 500003, (0, 500003), step=5)
+
+    # Mostrar o valor selecionado na sidebar
+    st.sidebar.markdown(f"Valor mínimo: $ {valor_min:,.0f}")
+    st.sidebar.markdown(f"Valor máximo: $ {valor_max:,.0f}")
     
-    # Caixa de seleção dos gráficos
-    st.sidebar.markdown('## Filtro para a tabela')
-    categorias = ["geop", "g2", "g3", "g4"]
-    categoria = st.sidebar.selectbox('Selecione a região para visualizar o gráfico',
-                                     options = categorias)
+    st.pydeck_chart(utils.plot_3d(df))
 
-    if categoria == 'g4':
-        st.sidebar.markdown('## Defina o Preço da Casa')
-        valor_min, valor_max = st.sidebar.slider("Escolha o intervalo de valores", 0, 500003, (0, 500003), step=5)
+elif categoria == "Análise por Distrito":
+    st.title("Análise de Critérios por Região\n")
+    #st.write("Vamos ver como o preço de casas na Califórnia varia por região.")
 
-        # Mostrar o valor selecionado na sidebar
-        st.sidebar.markdown(f"Valor mínimo: $ {valor_min:,.0f}")
-        st.sidebar.markdown(f"Valor máximo: $ {valor_max:,.0f}")
-    elif categoria == "geop":
-        geo_cats = list(df.columns)[3:]
-        geo_cat = st.sidebar.selectbox('Categoria do gráfico', 
-                                       options = geo_cats)
-        radio_b = st.sidebar.checkbox("Visualização 3D")
-    else:
-        pass
+    opcoes = ["Idade média das casas", "Receita média das famílias",
+              "Valor médio das casas", "Proximidade do oceano",
+              "Categoria de valor", "Número de quartos por pessoa",
+              "Número de salas por pessoa", "Número de quartos por sala",
+              "Número de pessoas por família"]
+    masks = list(df.columns)[3:]
+    dict_opcoes = dict(zip(opcoes, masks))
+
+    geo_cat = st.sidebar.selectbox('Critério', 
+                                    options = opcoes)
+    radio_b = st.sidebar.checkbox("Visualização 3D")
+
+    criterio_escolhido = dict_opcoes[geo_cat]
+
+    st.pydeck_chart(utils.distritos(cali, radio_b, criterio_escolhido))
+else:
+    pass
 # ===========================================================================
 
 
@@ -52,57 +63,57 @@ if checkbox_mostrar_tabela:
 
 
 # ========================= Montar gráfico de distrito ===========================
-# Escolher uma palheta de cores e quantidade de cores diferentes a serem usadas
-palette = "Blues"
-n_colors = 5
-colors = cm.get_palette(palette, n_colors)
-colors = [hex_to_rgb(c) for c in colors] # Passar as cores para hex
+# # Escolher uma palheta de cores e quantidade de cores diferentes a serem usadas
+# palette = "Blues"
+# n_colors = 5
+# colors = cm.get_palette(palette, n_colors)
+# colors = [hex_to_rgb(c) for c in colors] # Passar as cores para hex
 
 
-# Para cada estado, pintar ele baseado no valor das casas (normalizado)
-for i, ind in enumerate(cali.index):
-  proportion = ((cali.loc[ind, geo_cat] - cali[geo_cat].min())/ (cali[geo_cat].max() - cali[geo_cat].min()))
-  index = int(round(n_colors * proportion, 0))
+# # Para cada estado, pintar ele baseado no valor das casas (normalizado)
+# for i, ind in enumerate(cali.index):
+#   proportion = ((cali.loc[ind, geo_cat] - cali[geo_cat].min())/ (cali[geo_cat].max() - cali[geo_cat].min()))
+#   index = int(round(n_colors * proportion, 0))
 
-  if index >= len(colors):
-      index = len(colors) - 1
-  cali.loc[ind, "R"] = colors[index][0]
-  cali.loc[ind, "G"] = colors[index][1]
-  cali.loc[ind, "B"] = colors[index][2]
-
-
-geojson = pdk.Layer(
-        "GeoJsonLayer",
-        cali,
-        pickable=True,
-        opacity=0.5,
-        stroked=True,
-        filled=True,
-        extruded=radio_b,
-        wireframe=True,
-        get_elevation=geo_cat,
-        elevation_scale=1,
-        # get_fill_color="color",
-        get_fill_color=f"[R, G, B]",
-        get_line_color=[0, 0, 0],
-        get_line_width=2,
-        line_width_min_pixels=1,
-    )
+#   if index >= len(colors):
+#       index = len(colors) - 1
+#   cali.loc[ind, "R"] = colors[index][0]
+#   cali.loc[ind, "G"] = colors[index][1]
+#   cali.loc[ind, "B"] = colors[index][2]
 
 
-# Posição inicial do mapa
-view_state = pdk.ViewState(latitude=37.7749295, longitude=-122.4194155, zoom=4.5, bearing=0, pitch=0)
+# geojson = pdk.Layer(
+#         "GeoJsonLayer",
+#         cali,
+#         pickable=True,
+#         opacity=0.5,
+#         stroked=True,
+#         filled=True,
+#         extruded=radio_b,
+#         wireframe=True,
+#         get_elevation=geo_cat,
+#         elevation_scale=1,
+#         # get_fill_color="color",
+#         get_fill_color=f"[R, G, B]",
+#         get_line_color=[0, 0, 0],
+#         get_line_width=2,
+#         line_width_min_pixels=1,
+#     )
 
-# Gerar mapa
-layers = [geojson]
-r = pdk.Deck(
-    layers=layers,
-    map_style="light",
-    initial_view_state=view_state
-)
+
+# # Posição inicial do mapa
+# view_state = pdk.ViewState(latitude=37.7749295, longitude=-122.4194155, zoom=4.5, bearing=0, pitch=0)
+
+# # Gerar mapa
+# layers = [geojson]
+# r = pdk.Deck(
+#     layers=layers,
+#     map_style="light",
+#     initial_view_state=view_state
+# )
 
 
-st.pydeck_chart(r)
+# st.pydeck_chart(r)
 # ===========================================================================
 
 
