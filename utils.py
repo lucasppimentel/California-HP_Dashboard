@@ -99,3 +99,20 @@ def plot_3d(data):
     r2 = pdk.Deck(layers=[layer], initial_view_state=view_state, map_style="dark")
 
     return r2
+
+# Função para categorizar as casas com base no desconto
+def discount_category(row):
+  house_price = row["porcentagem"]
+
+  if house_price > 0:
+    cat = "Cara"
+  if -5 < house_price <= 0:
+    cat = "Desconto baixo"
+  if -10 < house_price <= -5:
+    cat = "Desconto ok"
+  if -15 < house_price <= -10:
+    cat = "Desconto bom"
+  if house_price <= -15:
+    cat = "Desconto muito alto"
+
+  return cat
