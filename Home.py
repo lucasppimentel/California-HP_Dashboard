@@ -5,6 +5,8 @@ import geopandas as gpd
 import utils
 from st_pages import Page, show_pages
 from PIL import Image
+import requests
+from io import BytesIO
 
 st.set_page_config(page_title="🏘️CaliHP")
 
@@ -32,8 +34,10 @@ st.markdown(description)
 
 col1, col2, col3, col4 = st.columns(4, gap="small")
 
+url = "https://raw.githubusercontent.com/lucasppimentel/California-HP_Dashboard/main/images/LogoDS.png"
 with col2:
-    image = Image.open('images\LogoDS.png')
+    response = requests.get(url)
+    image = Image.open(BytesIO(response.content))
     st.image(image, width=360)
 
 st.text("Membros devs 💓👉 Ana, Harry, Dos100, Mari, Murilo, Victor e Arara")
