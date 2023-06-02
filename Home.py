@@ -11,17 +11,6 @@ from io import BytesIO
 st.set_page_config(page_title="🏘️CaliHP")
 
 
-# Specify what pages should be shown in the sidebar, and what their titles 
-# and icons should be
-show_pages(
-    [
-        Page("Home.py", "Home", "🏠"),
-        Page("pages/2_Database.py", "Database", "🥼"),
-        Page("pages/3_District_analysis.py", "District analysis", "🌐"),
-        Page("pages/4_Find_your_home.py", "Find your home", "🙌")
-    ]
-)
-
 description = """ Esse projeto é um exercício de ciência de dados que tem como objetivo utilizar \
         um dos bancos de dados mais conhecidos do mundo, o California Housing Prices, para desenvolver \
         uma análise o mais aprofundada possível das características do setor imobiliário da Califórnia, \
