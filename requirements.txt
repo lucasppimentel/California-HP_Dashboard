@@ -1,3 +1,4 @@
 leafmap
 geopandas
 st_pages
+plotly
